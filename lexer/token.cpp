@@ -14,7 +14,7 @@ int CurToken;
 
 /// A map containing all uppercase instruction mnemonics supported, as well as their
 /// supported addressing modes.
-std::map<std::string, std::vector<AddressingMode>> instrs;
+std::map<std::string, std::vector<std::pair<AddressingMode, unsigned char>>> instrs;
 
 /// gettok - return the next token from standard input.
 int gettok() {
@@ -108,7 +108,64 @@ int getNextToken() {
 }
 
 void populateInstructions() {
-    instrs["ADC"] = {immediate, zeropage, zeropage_x, absolute, absolute_x, absolute_y, x_idx_indirect, indirect_y_idx};
-    instrs["LDA"] = {immediate, zeropage, zeropage_x, absolute, absolute_x, absolute_y, x_idx_indirect, indirect_y_idx};
-    instrs["STA"] = {zeropage, zeropage_x, absolute, absolute_x, absolute_y, x_idx_indirect, indirect_y_idx};
+    instrs["ADC"] = {{immediate, 0x69},
+                     {zeropage, 0x65},
+                     {zeropage_x, 0x75},
+                     {absolute, 0x6D},
+                     {absolute_x, 0x7D},
+                     {absolute_y, 0x79},
+                     {x_idx_indirect, 0x61},
+                     {indirect_y_idx, 0x71}};
+
+    instrs["BEQ"] = {{relative, 0xF0}};
+
+    instrs["BNE"] = {{relative, 0xD0}};
+
+    instrs["BCS"] = {{relative, 0xB0}};
+
+    instrs["BCC"] = {{relative, 0x90}};
+
+    instrs["CPY"] = {{immediate, 0xC0},
+                     {zeropage, 0xC4},
+                     {absolute, 0xCC}};
+
+    instrs["LDA"] = {{immediate, 0xA9},
+                     {zeropage, 0xA5},
+                     {zeropage_x, 0xB5},
+                     {absolute, 0xAD},
+                     {absolute_x, 0xBD},
+                     {absolute_y, 0xB9},
+                     {x_idx_indirect, 0xA1},
+                     {indirect_y_idx, 0xB1}};
+
+    instrs["LDY"] = {{immediate, 0xA0},
+                     {zeropage, 0xA4},
+                     {zeropage_x, 0xB4},
+                     {absolute, 0xAC},
+                     {absolute_x, 0xBC}};
+
+    instrs["STA"] = {{zeropage, 0x85},
+                     {zeropage_x, 0x95},
+                     {absolute, 0x8D},
+                     {absolute_x, 0x9D},
+                     {absolute_y, 0x99},
+                     {x_idx_indirect, 0x81},
+                     {indirect_y_idx, 0x91}};
+
+    instrs["DEY"] = {{implied, 0x88}};
+
+    instrs["INX"] = {{implied, 0xE8}};
+
+    instrs["INY"] = {{implied, 0xC8}};
+
+    instrs["TYA"] = {{implied, 0x98}};
+
+    instrs["ORA"] = {{immediate, 0x09},
+                     {zeropage, 0x05},
+                     {zeropage_x, 0x15},
+                     {absolute, 0x0D},
+                     {absolute_x, 0x1D},
+                     {absolute_y, 0x19},
+                     {x_idx_indirect, 0x01},
+                     {indirect_y_idx, 0x11}};
 }

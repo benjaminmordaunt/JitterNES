@@ -11,18 +11,18 @@
 
 class InstructionAST : public AddressableAST {
     std::string _inst;
-    std::vector<AddressingMode> _addr_modes;
+    std::vector<std::pair<AddressingMode, unsigned char>> &_addr_modes;
     std::unique_ptr<AddressingExprAST> _addr;
 
 public:
-    InstructionAST(std::string inst, std::vector<AddressingMode> addr_modes) : _inst(std::move(inst)),
-        _addr_modes(std::move(addr_modes)), _addr(nullptr) {}
+    InstructionAST(std::string inst, std::vector<std::pair<AddressingMode, unsigned char>> &addr_modes) : _inst(std::move(inst)),
+        _addr_modes(addr_modes), _addr(nullptr) {}
 
     virtual llvm::Value *codegen() override;
     static std::unique_ptr<InstructionAST> ParseInstruction();
 
     bool setAddressExpr(std::unique_ptr<AddressingExprAST> addr_exp);
-    std::vector<AddressingMode> &getAddressingModes();
+    std::vector<AddressingMode> getAddressingModes();
 };
 
 

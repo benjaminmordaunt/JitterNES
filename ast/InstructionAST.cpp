@@ -16,9 +16,6 @@ std::unique_ptr<InstructionAST> InstructionAST::ParseInstruction() {
 
     auto inst = std::make_unique<InstructionAST>(IdentifierUpper, instrs[IdentifierUpper]);
 
-    // Eat the instruction word.
-    getNextToken();
-
     // The correct addressing syntax must follow. If it doesn't, drop this instruction.
     // setAddressExpr returns false if it receives a nullptr as argument
     if (!inst->setAddressExpr(AddressingExprAST::ParseAddressingExpr(inst->getAddressingModes())))
@@ -35,8 +32,15 @@ bool InstructionAST::setAddressExpr(std::unique_ptr<AddressingExprAST> addr_exp)
     return true;
 }
 
-std::vector<AddressingMode> &InstructionAST::getAddressingModes() {
-    return _addr_modes;
+/// This function is used for parsing purposes only, which doesn't care about
+/// the instruction opcode. Therefore, shrink the vector.
+std::vector<AddressingMode> InstructionAST::getAddressingModes() {
+    std::vector<AddressingMode> addr_modes;
+    std::transform(_addr_modes.begin(), _addr_modes.end(),
+                   std::back_inserter(addr_modes),
+                   [](const std::pair<AddressingMode, unsigned int> &p) { return p.first; });
+
+    return std::move(addr_modes);
 }
 
 llvm::Value *InstructionAST::codegen() {

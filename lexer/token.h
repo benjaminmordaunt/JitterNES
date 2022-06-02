@@ -36,7 +36,7 @@ enum AddressingMode {
     zeropage_y = 12
 };
 
-extern std::map<std::string, std::vector<AddressingMode>> instrs;
+extern std::map<std::string, std::vector<std::pair<AddressingMode, unsigned char>>> instrs;
 int gettok();
 int getNextToken();
 void populateInstructions();

@@ -9,6 +9,12 @@
 /// Currently, only accept labels, immediate values and absolute addresses. This should be enough
 /// to parse a basic disassembled example.
 std::unique_ptr<AddressingExprAST> AddressingExprAST::ParseAddressingExpr(const std::vector<AddressingMode> &modes) {
+    if (std::count(modes.begin(), modes.end(), implied) > 0)
+        return std::make_unique<AddressingExprAST>();
+
+    // Eat the instruction word.
+    getNextToken();
+
     switch (CurToken) {
         case tok_immediate:
             if (std::count(modes.begin(), modes.end(), immediate) < 1)
