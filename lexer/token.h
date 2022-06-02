@@ -14,9 +14,10 @@ enum Token {
     tok_eof = -1,
 
     // Primary
-    tok_number = -2,
-    tok_identifier = -3,
-    tok_instruction = -4,
+    tok_immediate = -2,
+    tok_absolute = -3,
+    tok_identifier = -4,
+    tok_instruction = -5,
 };
 
 enum AddressingMode {
@@ -43,6 +44,6 @@ void populateInstructions();
 extern int CurToken;
 extern std::string IdentifierString;
 extern std::string IdentifierUpper;
-extern double NumVal;
+extern long NumVal;
 
 #endif //UNTITLED1_TOKEN_H

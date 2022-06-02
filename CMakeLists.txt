@@ -8,10 +8,11 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(${LLVM_INCLUDE_DIRS})
+include_directories(${LLVM_INCLUDE_DIRS} .)
 add_definitions(${LLVM_DEFINITIONS})
 
-add_executable(untitled1 main.cpp token.cpp token.h LabelAST.cpp LabelAST.h AddressableAST.cpp AddressableAST.h InstructionAST.cpp InstructionAST.h AddressingExprAST.cpp AddressingExprAST.h DirectiveAST.cpp DirectiveAST.h)
+add_executable(untitled1 main.cpp lexer/token.cpp ast/LabelAST.cpp ast/AddressableAST.cpp ast/InstructionAST.cpp
+        ast/AddressingExprAST.cpp ast/DirectiveAST.cpp)
 
 llvm_map_components_to_libnames(llvm_libs core)
 

@@ -7,7 +7,7 @@
 
 #include "AddressableAST.h"
 #include "AddressingExprAST.h"
-#include "token.h"
+#include "lexer/token.h"
 
 class InstructionAST : public AddressableAST {
     std::string _inst;

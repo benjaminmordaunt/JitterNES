@@ -10,7 +10,7 @@
 #include <map>
 
 #include "llvm/IR/BasicBlock.h"
-#include "AddressableAST.h"
+#include "ast/AddressableAST.h"
 
 /* Identifies a label marking a position in the assembly */
 class LabelAST {
@@ -23,6 +23,6 @@ public:
     static std::unique_ptr<LabelAST> ParseLabel();
 };
 
-extern std::map<std::string, std::unique_ptr<AddressableAST>> LabelMap;
+extern std::map<std::string, std::shared_ptr<AddressableAST>> LabelMap;
 
 #endif //UNTITLED1_LABELAST_H

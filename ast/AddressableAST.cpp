@@ -7,7 +7,7 @@
 #include "AddressableAST.h"
 #include "DirectiveAST.h"
 #include "InstructionAST.h"
-#include "token.h"
+#include "lexer/token.h"
 
 /// An addressable may be initialized memory using e.g. `.dw`, or
 /// an assembler instruction.

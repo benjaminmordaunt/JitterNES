@@ -1,7 +1,8 @@
 #include <iostream>
 
-#include "token.h"
-#include "LabelAST.h"
+#include "lexer/token.h"
+#include "ast/LabelAST.h"
+#include "ast/InstructionAST.h"
 
 int main() {
     populateInstructions();
@@ -24,7 +25,11 @@ int main() {
                 }
                 break;
             case tok_instruction:
-                std::cout << "Found an instruction: " << IdentifierString << "\n";
+                if (InstructionAST::ParseInstruction() == nullptr) {
+                    std::cout << "Could not parse instruction." << std::endl;
+                } else {
+                    std::cout << "Read a top-level instruction." << std::endl;
+                }
                 break;
             default:
                 break;

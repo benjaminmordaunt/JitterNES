@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "InstructionAST.h"
-#include "token.h"
+#include "lexer/token.h"
 
 std::unique_ptr<InstructionAST> InstructionAST::ParseInstruction() {
     // Look-up the instruction in the instruction map
@@ -24,7 +24,7 @@ std::unique_ptr<InstructionAST> InstructionAST::ParseInstruction() {
     if (!inst->setAddressExpr(AddressingExprAST::ParseAddressingExpr(inst->getAddressingModes())))
         return nullptr;
 
-    return inst;
+    return std::move(inst);
 }
 
 bool InstructionAST::setAddressExpr(std::unique_ptr<AddressingExprAST> addr_exp) {

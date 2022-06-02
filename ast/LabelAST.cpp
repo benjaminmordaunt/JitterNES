@@ -3,12 +3,12 @@
 //
 
 #include "LabelAST.h"
-#include "token.h"
+#include "lexer/token.h"
 
 /// A map of labels to their addressable.
 /// Note that labels take ownership of their addressable in the AST tree.
 /// So, when looking to e.g. assemble instructions, I also need to examine labels' children.
-std::map<std::string, std::unique_ptr<AddressableAST>> LabelMap;
+std::map<std::string, std::shared_ptr<AddressableAST>> LabelMap;
 
 std::unique_ptr<LabelAST> LabelAST::ParseLabel() {
     if (CurToken != ':')
