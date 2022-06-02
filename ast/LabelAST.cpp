@@ -15,18 +15,18 @@ std::unique_ptr<LabelAST> LabelAST::ParseLabel() {
         return nullptr;
 
     // Verify that this label is unique
-    if (LabelMap.find(IdentifierString) == LabelMap.end()) {
-        // A label refers to the resolved address of its immediate successor.
-        // Therefore, attempt to parse an Addressable.
+    if (LabelMap.find(IdentifierString) != LabelMap.end())
+        return nullptr;
 
-        auto addr_next = AddressableAST::ParseAddressable();
-        if (addr_next == nullptr) {
-            // This label refers to nonsense, drop it.
-            return nullptr;
-        }
+    // A label refers to the resolved address of its immediate successor.
+    // Therefore, attempt to parse an Addressable.
 
-        LabelMap[IdentifierString] = std::move(addr_next);
+    auto addr_next = AddressableAST::ParseAddressable();
+    if (addr_next == nullptr) {
+        // This label refers to nonsense, drop it.
+        return nullptr;
     }
 
+    LabelMap[IdentifierString] = std::move(addr_next);
     return std::make_unique<LabelAST>(IdentifierString);
 }
