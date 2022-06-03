@@ -12,7 +12,7 @@ include_directories(${LLVM_INCLUDE_DIRS} .)
 add_definitions(${LLVM_DEFINITIONS})
 
 add_executable(untitled1 main.cpp lexer/token.cpp ast/LabelAST.cpp ast/AddressableAST.cpp ast/InstructionAST.cpp
-        ast/AddressingExprAST.cpp ast/DirectiveAST.cpp)
+        ast/AddressingExprAST.cpp ast/DirectiveAST.cpp cpu/CPUState.cpp cpu/CPUState.h)
 
 llvm_map_components_to_libnames(llvm_libs core)
 

@@ -5,6 +5,7 @@
 #ifndef UNTITLED1_ADDRESSABLEAST_H
 #define UNTITLED1_ADDRESSABLEAST_H
 
+#include <llvm/IR/IRBuilder.h>
 #include "llvm/IR/BasicBlock.h"
 
 class AddressableAST {
