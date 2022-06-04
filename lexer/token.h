@@ -6,6 +6,7 @@
 #define UNTITLED1_TOKEN_H
 
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -18,6 +19,23 @@ enum Token {
     tok_absolute = -3,
     tok_identifier = -4,
     tok_instruction = -5,
+};
+
+enum Instruction6502 {
+    ADC,
+    BEQ,
+    BNE,
+    BCS,
+    BCC,
+    CPY,
+    LDA,
+    LDY,
+    STA,
+    DEY,
+    INX,
+    INY,
+    TYA,
+    ORA
 };
 
 enum AddressingMode {
@@ -36,7 +54,9 @@ enum AddressingMode {
     zeropage_y = 12
 };
 
-extern std::map<std::string, std::vector<std::pair<AddressingMode, unsigned char>>> instrs;
+extern std::map<Instruction6502, std::vector<std::pair<AddressingMode, unsigned char>>> instrs;
+extern std::unordered_map<std::string, Instruction6502> const instr_lookup;
+
 int gettok();
 int getNextToken();
 void populateInstructions();

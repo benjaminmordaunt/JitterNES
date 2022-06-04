@@ -12,14 +12,14 @@
 #include "cpu/CPUState.h"
 
 class InstructionAST : public AddressableAST {
-    std::string _inst;
+    Instruction6502 _inst;
     std::shared_ptr<CPUState> _cpu;
     std::vector<std::pair<AddressingMode, unsigned char>> &_addr_modes;
     std::unique_ptr<AddressingExprAST> _addr;
 
 public:
-    InstructionAST(std::shared_ptr<CPUState> &cpu, std::string inst,
-                   std::vector<std::pair<AddressingMode, unsigned char>> &addr_modes) : _inst(std::move(inst)),
+    InstructionAST(std::shared_ptr<CPUState> &cpu, Instruction6502 inst,
+                   std::vector<std::pair<AddressingMode, unsigned char>> &addr_modes) : _inst(inst),
         _cpu(cpu), _addr_modes(addr_modes), _addr(nullptr) {}
 
     llvm::Value *codegen() override;

@@ -8,9 +8,9 @@
 
 /// Currently, only accept labels, immediate values and absolute addresses. This should be enough
 /// to parse a basic disassembled example.
-std::unique_ptr<AddressingExprAST> AddressingExprAST::ParseAddressingExpr(const std::vector<AddressingMode> &modes) {
+std::unique_ptr<AddressingExprAST> AddressingExprAST::ParseAddressingExpr(std::shared_ptr<CPUState> &cpu, const std::vector<AddressingMode> &modes) {
     if (std::count(modes.begin(), modes.end(), implied) > 0)
-        return std::make_unique<AddressingExprAST>();
+        return std::make_unique<AddressingExprAST>(cpu);
 
     // Eat the instruction word.
     getNextToken();
@@ -20,12 +20,12 @@ std::unique_ptr<AddressingExprAST> AddressingExprAST::ParseAddressingExpr(const 
             if (std::count(modes.begin(), modes.end(), immediate) < 1)
                 return nullptr;
             std::cout << "Building immediate addressing expression, with value " << NumVal << std::endl;
-            return std::make_unique<AddressingExprAST>(NumVal, immediate_ast);
+            return std::make_unique<AddressingExprAST>(cpu, NumVal, immediate_ast);
         case tok_absolute:
             if (std::count(modes.begin(), modes.end(), absolute) < 1)
                 return nullptr;
             std::cout << "Building absolute addressing expression, with value " << NumVal << std::endl;
-            return std::make_unique<AddressingExprAST>(NumVal, absolute_ast);
+            return std::make_unique<AddressingExprAST>(cpu, NumVal, absolute_ast);
         case tok_identifier:
             if (std::count(modes.begin(), modes.end(), absolute) < 1)
                 return nullptr;
@@ -34,10 +34,20 @@ std::unique_ptr<AddressingExprAST> AddressingExprAST::ParseAddressingExpr(const 
             // If a key is present within LabelMap without a binding at end of parsing, raise an error.
 
             std::cout << "Building label addressing expression to label " << IdentifierString << std::endl;
-            return std::make_unique<AddressingExprAST>(LabelMap[IdentifierString]);
+            return std::make_unique<AddressingExprAST>(cpu, LabelMap[IdentifierString]);
         default:
             break;
     }
 
     return nullptr;
+}
+
+llvm::Value *AddressingExprAST::codegen() const {
+    switch(_type) {
+        case immediate_ast:
+            return llvm::ConstantInt::get(_cpu->builder.getInt8Ty(), _val);
+        default:
+            std::cerr << "AddressingExpr type not yet implemented." << std::endl;
+            return nullptr;
+    }
 }

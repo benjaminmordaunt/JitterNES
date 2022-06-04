@@ -4,6 +4,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <iostream>
 #include "token.h"
@@ -14,7 +15,23 @@ int CurToken;
 
 /// A map containing all uppercase instruction mnemonics supported, as well as their
 /// supported addressing modes.
-std::map<std::string, std::vector<std::pair<AddressingMode, unsigned char>>> instrs;
+std::map<Instruction6502, std::vector<std::pair<AddressingMode, unsigned char>>> instrs;
+std::unordered_map<std::string, Instruction6502> const instr_lookup = {
+        {"ADC", ADC},
+        {"BEQ", BEQ},
+        {"BNE", BNE},
+        {"BCS", BCS},
+        {"BCC", BCC},
+        {"CPY", CPY},
+        {"LDA", LDA},
+        {"LDY", LDY},
+        {"STA", STA},
+        {"DEY", DEY},
+        {"INX", INX},
+        {"INY", INY},
+        {"TYA", TYA},
+        {"ORA", ORA}
+};
 
 /// gettok - return the next token from standard input.
 int gettok() {
@@ -33,7 +50,7 @@ int gettok() {
         // Use search and map each character to upper-case
         for (auto &instr : instrs) {
             IdentifierUpper = boost::to_upper_copy<std::string>(IdentifierString);
-            if (instrs.count(IdentifierUpper) > 0) {
+            if (instr_lookup.count(IdentifierUpper) > 0) {
                 std::cout << "Emitting tok_instruction: " << IdentifierUpper << std::endl;
                 return tok_instruction;
             }
@@ -108,7 +125,7 @@ int getNextToken() {
 }
 
 void populateInstructions() {
-    instrs["ADC"] = {{immediate, 0x69},
+    instrs[ADC] = {{immediate, 0x69},
                      {zeropage, 0x65},
                      {zeropage_x, 0x75},
                      {absolute, 0x6D},
@@ -117,19 +134,19 @@ void populateInstructions() {
                      {x_idx_indirect, 0x61},
                      {indirect_y_idx, 0x71}};
 
-    instrs["BEQ"] = {{relative, 0xF0}};
+    instrs[BEQ] = {{relative, 0xF0}};
 
-    instrs["BNE"] = {{relative, 0xD0}};
+    instrs[BNE] = {{relative, 0xD0}};
 
-    instrs["BCS"] = {{relative, 0xB0}};
+    instrs[BCS] = {{relative, 0xB0}};
 
-    instrs["BCC"] = {{relative, 0x90}};
+    instrs[BCC] = {{relative, 0x90}};
 
-    instrs["CPY"] = {{immediate, 0xC0},
+    instrs[CPY] = {{immediate, 0xC0},
                      {zeropage, 0xC4},
                      {absolute, 0xCC}};
 
-    instrs["LDA"] = {{immediate, 0xA9},
+    instrs[LDA] = {{immediate, 0xA9},
                      {zeropage, 0xA5},
                      {zeropage_x, 0xB5},
                      {absolute, 0xAD},
@@ -138,13 +155,13 @@ void populateInstructions() {
                      {x_idx_indirect, 0xA1},
                      {indirect_y_idx, 0xB1}};
 
-    instrs["LDY"] = {{immediate, 0xA0},
+    instrs[LDY] = {{immediate, 0xA0},
                      {zeropage, 0xA4},
                      {zeropage_x, 0xB4},
                      {absolute, 0xAC},
                      {absolute_x, 0xBC}};
 
-    instrs["STA"] = {{zeropage, 0x85},
+    instrs[STA] = {{zeropage, 0x85},
                      {zeropage_x, 0x95},
                      {absolute, 0x8D},
                      {absolute_x, 0x9D},
@@ -152,15 +169,15 @@ void populateInstructions() {
                      {x_idx_indirect, 0x81},
                      {indirect_y_idx, 0x91}};
 
-    instrs["DEY"] = {{implied, 0x88}};
+    instrs[DEY] = {{implied, 0x88}};
 
-    instrs["INX"] = {{implied, 0xE8}};
+    instrs[INX] = {{implied, 0xE8}};
 
-    instrs["INY"] = {{implied, 0xC8}};
+    instrs[INY] = {{implied, 0xC8}};
 
-    instrs["TYA"] = {{implied, 0x98}};
+    instrs[TYA] = {{implied, 0x98}};
 
-    instrs["ORA"] = {{immediate, 0x09},
+    instrs[ORA] = {{immediate, 0x09},
                      {zeropage, 0x05},
                      {zeropage_x, 0x15},
                      {absolute, 0x0D},

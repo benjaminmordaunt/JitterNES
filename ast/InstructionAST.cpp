@@ -10,16 +10,17 @@
 
 std::unique_ptr<InstructionAST> InstructionAST::ParseInstruction(std::shared_ptr<CPUState> &cpu) {
     // Look-up the instruction in the instruction map
-    if (instrs.count(IdentifierUpper) < 1) {
+    if (instr_lookup.count(IdentifierUpper) < 1) {
         std::cout << "Could not find instruction " << IdentifierUpper << std::endl;
         return nullptr;
     }
 
-    auto inst = std::make_unique<InstructionAST>(cpu, IdentifierUpper, instrs[IdentifierUpper]);
+    auto inst_resolved = instr_lookup.at(IdentifierUpper);
+    auto inst = std::make_unique<InstructionAST>(cpu, inst_resolved, instrs[inst_resolved]);
 
     // The correct addressing syntax must follow. If it doesn't, drop this instruction.
     // setAddressExpr returns false if it receives a nullptr as argument
-    if (!inst->setAddressExpr(AddressingExprAST::ParseAddressingExpr(inst->getAddressingModes())))
+    if (!inst->setAddressExpr(AddressingExprAST::ParseAddressingExpr(cpu, inst->getAddressingModes())))
         return nullptr;
 
     return std::move(inst);
@@ -45,14 +46,53 @@ std::vector<AddressingMode> InstructionAST::getAddressingModes() {
 }
 
 llvm::Value *InstructionAST::codegen() {
-    // Instruction lookup clearly needs improving. String comparison is no good here.
-    if (_inst == "INX") {
-        static auto inc_one = llvm::ConstantInt::get(_cpu->builder.getInt8Ty(), 1);
+    switch(_inst) {
+        case ADC: {
+            static auto zero = llvm::ConstantInt::get(_cpu->builder.getInt16Ty(), 0);
 
-        auto x_reg = _cpu->builder.CreateLoad(_cpu->builder.getInt8Ty(), _cpu->rX);
-        auto new_x_reg = _cpu->builder.CreateAdd(x_reg, inc_one);
-        _cpu->builder.CreateStore(new_x_reg, _cpu->rX);
+            auto a_reg = _cpu->builder.CreateLoad(_cpu->builder.getInt8Ty(), _cpu->rA);
+            auto rscar_reg = _cpu->builder.CreateLoad(_cpu->builder.getInt1Ty(), _cpu->rSCar);
+            auto mval = _addr->codegen();
 
-        _cpu->statusUpdate(x_reg, Zero | Negative);
+            // Extend all registers to 16 bits so we can observe overflows and carries
+            auto a_reg_ext = _cpu->builder.CreateZExt(a_reg, _cpu->builder.getInt16Ty());
+            auto rscar_reg_ext = _cpu->builder.CreateZExt(rscar_reg, _cpu->builder.getInt16Ty());
+            auto mval_ext = _cpu->builder.CreateZExt(mval, _cpu->builder.getInt16Ty());
+
+            // Perform addition, truncate and store in accumulator
+            auto result1 = _cpu->builder.CreateAdd(a_reg_ext, mval_ext);
+
+            // Detect overflow
+            // Overflow occurred when signs are 0 + 0 -> 1 or 1 + 1 -> 0.
+            // i.e. signs of operands are the same, AND sign of result different from sign of one of the operands
+            auto a_reg_ext_sgn = _cpu->builder.CreateICmpSLT(a_reg_ext, zero);
+            auto mval_ext_sgn = _cpu->builder.CreateICmpSLT(mval_ext, zero);
+            auto a_reg_mval_sgn_same = _cpu->builder.CreateICmpEQ(a_reg_ext_sgn, mval_ext_sgn);
+
+            auto result2 = _cpu->builder.CreateAdd(result1, rscar_reg_ext);
+            auto result2_sgn = _cpu->builder.CreateICmpSLT(result2, zero);
+            auto a_reg_result2_sgn_diff = _cpu->builder.CreateICmpNE(a_reg_ext_sgn, result2_sgn);
+            auto overflow = _cpu->builder.CreateAnd(a_reg_mval_sgn_same, a_reg_result2_sgn_diff);
+
+            auto result_trunc = _cpu->builder.CreateTrunc(result2, _cpu->builder.getInt8Ty());
+            _cpu->builder.CreateStore(result_trunc, _cpu->rA);
+
+            _cpu->statusUpdate(result2, Negative | Zero | Carry);
+            _cpu->builder.CreateStore(overflow, _cpu->rSOvf);
+
+            break;
+        }
+        case INX: {
+            static auto inc_one = llvm::ConstantInt::get(_cpu->builder.getInt8Ty(), 1);
+
+            auto x_reg = _cpu->builder.CreateLoad(_cpu->builder.getInt8Ty(), _cpu->rX);
+            auto new_x_reg = _cpu->builder.CreateAdd(x_reg, inc_one);
+            _cpu->builder.CreateStore(new_x_reg, _cpu->rX);
+
+            _cpu->statusUpdate(new_x_reg, Negative | Zero);
+            break;
+        }
+        default:
+            break;
     }
 }
