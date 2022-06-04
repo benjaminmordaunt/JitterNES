@@ -65,17 +65,18 @@ llvm::Value *InstructionAST::codegen() {
             // Detect overflow
             // Overflow occurred when signs are 0 + 0 -> 1 or 1 + 1 -> 0.
             // i.e. signs of operands are the same, AND sign of result different from sign of one of the operands
-            auto a_reg_ext_sgn = _cpu->builder.CreateICmpSLT(a_reg_ext, zero);
-            auto mval_ext_sgn = _cpu->builder.CreateICmpSLT(mval_ext, zero);
-            auto a_reg_mval_sgn_same = _cpu->builder.CreateICmpEQ(a_reg_ext_sgn, mval_ext_sgn);
+            auto a_reg_sgn = _cpu->builder.CreateICmpSLT(a_reg, zero);
+            auto mval_sgn = _cpu->builder.CreateICmpSLT(mval, zero);
+            auto a_reg_mval_sgn_same = _cpu->builder.CreateICmpEQ(a_reg_sgn, mval_sgn);
 
             auto result2 = _cpu->builder.CreateAdd(result1, rscar_reg_ext);
-            auto result2_sgn = _cpu->builder.CreateICmpSLT(result2, zero);
-            auto a_reg_result2_sgn_diff = _cpu->builder.CreateICmpNE(a_reg_ext_sgn, result2_sgn);
+            auto result2_trunc = _cpu->builder.CreateTrunc(result2, _cpu->builder.getInt8Ty());
+
+            auto result2_sgn = _cpu->builder.CreateICmpSLT(result2_trunc, zero);
+            auto a_reg_result2_sgn_diff = _cpu->builder.CreateICmpNE(a_reg_sgn, result2_sgn);
             auto overflow = _cpu->builder.CreateAnd(a_reg_mval_sgn_same, a_reg_result2_sgn_diff);
 
-            auto result_trunc = _cpu->builder.CreateTrunc(result2, _cpu->builder.getInt8Ty());
-            _cpu->builder.CreateStore(result_trunc, _cpu->rA);
+            _cpu->builder.CreateStore(result2_trunc, _cpu->rA);
 
             _cpu->statusUpdate(result2, Negative | Zero | Carry);
             _cpu->builder.CreateStore(overflow, _cpu->rSOvf);
