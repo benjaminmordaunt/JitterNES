@@ -60,13 +60,13 @@ CPUState::CPUState() : builder(ctx) {
 void CPUState::statusUpdate(llvm::Value *val, unsigned int bits) {
     // May be passed 8-bit or 16-bit values
     if (bits & Negative) {
-        static auto bit7 = llvm::ConstantInt::get(val->getType(), 0x80);
+        auto bit7 = llvm::ConstantInt::get(val->getType(), 0x80);
         auto sneg_and = builder.CreateAnd(val, bit7);
         auto sneg_cmp = builder.CreateICmpEQ(sneg_and, bit7);
         builder.CreateStore(sneg_cmp, rSNeg);
     }
     if (bits & Zero) {
-        static auto zero = llvm::ConstantInt::get(val->getType(), 0);
+        auto zero = llvm::ConstantInt::get(val->getType(), 0);
         auto szer_cmp = builder.CreateICmpEQ(val, zero);
         builder.CreateStore(szer_cmp, rSZer);
     }
