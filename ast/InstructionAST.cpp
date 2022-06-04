@@ -48,7 +48,7 @@ std::vector<AddressingMode> InstructionAST::getAddressingModes() {
 llvm::Value *InstructionAST::codegen() {
     switch(_inst) {
         case ADC: {
-            static auto zero = llvm::ConstantInt::get(_cpu->builder.getInt16Ty(), 0);
+            static auto zero = llvm::ConstantInt::get(_cpu->builder.getInt8Ty(), 0);
 
             auto a_reg = _cpu->builder.CreateLoad(_cpu->builder.getInt8Ty(), _cpu->rA);
             auto rscar_reg = _cpu->builder.CreateLoad(_cpu->builder.getInt1Ty(), _cpu->rSCar);
