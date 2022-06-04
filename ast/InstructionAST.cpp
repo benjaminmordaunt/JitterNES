@@ -48,9 +48,11 @@ llvm::Value *InstructionAST::codegen() {
     // Instruction lookup clearly needs improving. String comparison is no good here.
     if (_inst == "INX") {
         static auto inc_one = llvm::ConstantInt::get(_cpu->builder.getInt8Ty(), 1);
-        auto new_x_reg = _cpu->builder.CreateAdd(_cpu->rX, inc_one);
+
+        auto x_reg = _cpu->builder.CreateLoad(_cpu->builder.getInt8Ty(), _cpu->rX);
+        auto new_x_reg = _cpu->builder.CreateAdd(x_reg, inc_one);
         _cpu->builder.CreateStore(new_x_reg, _cpu->rX);
 
-        _cpu->statusUpdate(_cpu->rX, Zero | Negative);
+        _cpu->statusUpdate(x_reg, Zero | Negative);
     }
 }

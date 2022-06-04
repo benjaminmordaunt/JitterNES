@@ -40,7 +40,6 @@ public:
     llvm::Value* rA;  /* accumulator */
     llvm::Value* rX;  /* x register */
     llvm::Value* rY;  /* y register */
-    llvm::Value* rP;  /* status register */
     llvm::Value* rSP; /* stack pointer */
     llvm::Value* rPC; /* program counter */
 
@@ -52,6 +51,8 @@ public:
     llvm::Value* rSInt;
     llvm::Value* rSZer;
     llvm::Value* rSCar;
+
+    llvm::Function *mainFn;
 
     CPUState();
     void statusUpdate(llvm::Value *val, unsigned bits);

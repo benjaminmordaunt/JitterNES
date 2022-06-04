@@ -7,17 +7,29 @@
 
 llvm::Value *CPUState::insertGlobalBit(const char *name) {
     module->getOrInsertGlobal(name, builder.getInt1Ty());
-    return module->getNamedGlobal(name);
+    auto glb = module->getNamedGlobal(name);
+    glb->setLinkage(llvm::GlobalValue::CommonLinkage);
+    glb->setAlignment(llvm::MaybeAlign(4));
+    glb->setInitializer(llvm::ConstantInt::get(glb->getValueType(), 0));
+    return glb;
 }
 
 llvm::Value *CPUState::insertGlobal8(const char *name) {
     module->getOrInsertGlobal(name, builder.getInt8Ty());
-    return module->getNamedGlobal(name);
+    auto glb = module->getNamedGlobal(name);
+    glb->setLinkage(llvm::GlobalValue::CommonLinkage);
+    glb->setAlignment(llvm::MaybeAlign(4));
+    glb->setInitializer(llvm::ConstantInt::get(glb->getValueType(), 0));
+    return glb;
 }
 
 llvm::Value *CPUState::insertGlobal16(const char *name) {
     module->getOrInsertGlobal(name, builder.getInt16Ty());
-    return module->getNamedGlobal(name);
+    auto glb = module->getNamedGlobal(name);
+    glb->setLinkage(llvm::GlobalValue::CommonLinkage);
+    glb->setAlignment(llvm::MaybeAlign(4));
+    glb->setInitializer(llvm::ConstantInt::get(glb->getValueType(), 0));
+    return glb;
 }
 
 CPUState::CPUState() : builder(ctx) {
@@ -37,6 +49,12 @@ CPUState::CPUState() : builder(ctx) {
     rSInt = insertGlobalBit("_nes_sint");
     rSZer = insertGlobalBit("_nes_szer");
     rSCar = insertGlobalBit("_nes_scar");
+
+    auto main_fn_ty = llvm::FunctionType::get(builder.getVoidTy(), false);
+    mainFn = llvm::Function::Create(main_fn_ty, llvm::GlobalValue::ExternalLinkage,
+                                          "main", *module);
+    auto main_fn_blk = llvm::BasicBlock::Create(ctx, "entry", mainFn);
+    builder.SetInsertPoint(main_fn_blk);
 }
 
 void CPUState::statusUpdate(llvm::Value *val, unsigned int bits) {

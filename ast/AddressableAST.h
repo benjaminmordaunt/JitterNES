@@ -7,12 +7,13 @@
 
 #include <llvm/IR/IRBuilder.h>
 #include "llvm/IR/BasicBlock.h"
+#include "cpu/CPUState.h"
 
 class AddressableAST {
     unsigned int _addr;
 public:
     virtual llvm::Value *codegen() = 0;
-    static std::unique_ptr<AddressableAST> ParseAddressable();
+    static std::unique_ptr<AddressableAST> ParseAddressable(std::shared_ptr<CPUState> &cpu);
     virtual ~AddressableAST() = default;
 };
 

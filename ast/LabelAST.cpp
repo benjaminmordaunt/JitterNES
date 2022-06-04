@@ -22,7 +22,7 @@ std::unique_ptr<LabelAST> LabelAST::ParseLabel(std::shared_ptr<CPUState> &cpu) {
     // A label refers to the resolved address of its immediate successor.
     // Therefore, attempt to parse an Addressable.
 
-    auto addr_next = AddressableAST::ParseAddressable();
+    auto addr_next = AddressableAST::ParseAddressable(cpu);
     if (addr_next == nullptr) {
         // This label refers to nonsense, drop it.
         return nullptr;

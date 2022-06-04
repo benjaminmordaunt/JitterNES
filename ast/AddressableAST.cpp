@@ -11,7 +11,7 @@
 
 /// An addressable may be initialized memory using e.g. `.dw`, or
 /// an assembler instruction.
-std::unique_ptr<AddressableAST> AddressableAST::ParseAddressable() {
+std::unique_ptr<AddressableAST> AddressableAST::ParseAddressable(std::shared_ptr<CPUState> &cpu) {
     getNextToken();
 
     // Attempt to process a directive
@@ -30,7 +30,7 @@ std::unique_ptr<AddressableAST> AddressableAST::ParseAddressable() {
         return nullptr;
     }
 
-    if (auto inst = InstructionAST::ParseInstruction()) {
+    if (auto inst = InstructionAST::ParseInstruction(cpu)) {
         return std::move(inst);
     }
 
